@@ -10,7 +10,7 @@
 (defun load-handler (handler-name)
   (let ((package-name (string-upcase handler-name)))
     (load-asd handler-name)
-    (asdf:load-system package-name)
+    (require package-name)
     (symbol-function (find-symbol "HANDLER" package-name))))
 
 (defun main ()
@@ -30,8 +30,11 @@
 					runtime
 					"/2018-06-01/runtime/invocation/"
 					request-id
-					"/response"))
-	     (response (funcall handler body)))
-	(drakma:http-request response-url
-			     :method :POST
-			     :content response)))))
+					"/response")))
+	(multiple-value-bind (response content-type)
+	      (funcall handler body)
+	   (drakma:http-request response-url
+				:method :POST
+				:content-type (or content-type
+						  "application/json")
+				:content response))))))
