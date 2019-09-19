@@ -1,19 +1,22 @@
 
 (in-package #:cl-bootstrap)
 
-(defun load-asd (handler-name)
-  (let ((asd-path (make-pathname :directory (getenv "LAMBDA_TASK_ROOT")
-				 :name handler-name
-				 :type "asd")))
-    (load asd-path)))
-
 (defun load-handler (handler-name)
-  (let ((package-name (string-upcase handler-name)))
-    (load-asd handler-name)
-    (require package-name)
-    (symbol-function (find-symbol "HANDLER" package-name))))
+  (let ((asd (make-pathname :directory (getenv "LAMBDA_TASK_ROOT")
+			    :name handler-name
+			    :type "asd")))
+    (asdf:load-asd asd))
+  (asdf:require-system (string-downcase handler-name))
+  (symbol-function (find-symbol "HANDLER"
+				(string-upcase handler-name))))
 
 (defun main ()
+  (trace load-handler)
+  (trace asdf:require-system)
+  (trace asdf:load-system)
+  (trace asdf::ensure-all-directories-exist)
+  (trace getenv)
+  (setf asdf:*user-cache* #P"/tmp/lisp-runtime/cache")
   (let* ((handler (load-handler (getenv "_HANDLER")))
 	 (runtime (getenv "AWS_LAMBDA_RUNTIME_API"))
 	 (request-url (concatenate 'string

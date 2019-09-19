@@ -1,5 +1,4 @@
 
 (in-package #:cl-bootstrap)
 
-(defun getenv (name)
-  (ccl:getenv name))
+(import '(ccl:getenv ccl:setenv))
