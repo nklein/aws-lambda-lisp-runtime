@@ -8,7 +8,7 @@ Still in development. Use at your own peril.
     aws lambda create-function
 	--function-name lisp-hello
 	--zip-file fileb://hello.zip
-	--handler hello
+	--handler HELLO:HELLO-HANDLER
 	--layers <arn from layer-publish above>
 	--runtime provided
 	--role <arn of a lambda execution role>

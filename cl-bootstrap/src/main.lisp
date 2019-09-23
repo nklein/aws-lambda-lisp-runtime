@@ -1,14 +1,21 @@
 
 (in-package #:cl-bootstrap)
 
+(defun parse-handler-name (handler-name)
+  (let ((pos (position #\: handler-name)))
+    (values (subseq handler-name 0 pos)
+	    (subseq handler-name (1+ pos)))))
+
 (defun load-handler (handler-name)
-  (let ((asd (make-pathname :directory (getenv "LAMBDA_TASK_ROOT")
-			    :name handler-name
-			    :type "asd")))
-    (asdf:load-asd asd))
-  (asdf:require-system (string-downcase handler-name))
-  (symbol-function (find-symbol "HANDLER"
-				(string-upcase handler-name))))
+  (trace parse-handler-name)
+  (multiple-value-bind (package symbol)
+        (parse-handler-name handler-name)
+    (let ((asd (make-pathname :directory (getenv "LAMBDA_TASK_ROOT")
+			      :name (string-downcase package)
+			      :type "asd")))
+      (asdf:load-asd asd))
+    (asdf:require-system (string-downcase package))
+    (symbol-function (find-symbol symbol package))))
 
 (defun handle-one-request (handler runtime request-url)
   (multiple-value-bind (body status headers)

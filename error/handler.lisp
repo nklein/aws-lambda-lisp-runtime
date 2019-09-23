@@ -1,6 +1,6 @@
 
 (in-package #:error)
 
-(defun handler (body)
+(defun error-handler (body)
   (declare (ignore body))
   (error "Problem"))
