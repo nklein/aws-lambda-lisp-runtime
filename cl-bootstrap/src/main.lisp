@@ -18,26 +18,34 @@
     (declare (ignore status))
     (let* ((request-id (drakma:header-value :lambda-runtime-aws-request-id
 					    headers))
-	   (response-url (concatenate 'string
-				      "http://"
-				      runtime
-				      "/2018-06-01/runtime/invocation/"
-				      request-id
-				      "/response")))
-      (multiple-value-bind (response content-type)
-	    (funcall handler body)
-	(drakma:http-request response-url
-			     :method :POST
-			     :content-type (or content-type
-					       "application/json")
-			     :content response
-			     :keep-alive t
-			     :close nil)))))
+	   (base-url (concatenate 'string
+				  "http://"
+				  runtime
+				  "/2018-06-01/runtime/invocation/"
+				  request-id))
+	   (response-url (concatenate 'string base-url "/response")))
+	(handler-case
+            (multiple-value-bind (response content-type)
+	          (funcall handler body)
+	      (drakma:http-request response-url
+			           :method :POST
+			           :content-type (or content-type
+					             "application/json")
+			           :content response
+			           :keep-alive t
+			           :close nil))
+	  (t (e)
+	     (let ((error-url (concatenate 'string base-url "/error")))
+	       (drakma:http-request error-url
+			            :method :POST
+			            :content-type "text/plain"
+			            :content (format nil "~A~%" e)
+			            :keep-alive t
+				    :close nil)))))))
 
-(defun main ()
+(defun main-unchecked (runtime)
   (setf asdf:*user-cache* #P"/tmp/lisp-runtime/cache")
   (let* ((handler (load-handler (getenv "_HANDLER")))
-	 (runtime (getenv "AWS_LAMBDA_RUNTIME_API"))
 	 (request-url (concatenate 'string
 				   "http://"
 				   runtime
@@ -45,3 +53,19 @@
     (loop :while t
 	  :do (ignore-errors
 		(handle-one-request handler runtime request-url)))))
+
+(defun main ()
+  (let ((runtime (getenv "AWS_LAMBDA_RUNTIME_API")))
+    (handler-case
+        (main-unchecked runtime)
+      (t (e)
+	 (let ((error-url (concatenate 'string
+				       "http://"
+				       runtime
+				       "/2018-06-01/runtime/init/error")))
+	   (drakma:http-request error-url
+				:method :POST
+				:content-type "text/plain"
+				:content (format nil "~A~%" e)
+				:keep-alive t
+				:close nil))))))

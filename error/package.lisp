@@ -1,0 +1,3 @@
+
+(defpackage #:error
+  (:use #:cl))
