@@ -1,5 +1,5 @@
 
-(in-package #:hello.GET)
+(in-package #:hello)
 
 (defun handler (body)
   (declare (ignore body))

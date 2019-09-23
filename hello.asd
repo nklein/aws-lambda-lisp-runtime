@@ -1,5 +1,5 @@
 
-(asdf:defsystem #:hello.GET
+(asdf:defsystem #:hello
   :description "Test function for AWS Lambda bootstrap"
   :author "Patrick Stein <pat@nklein.com>"
   :version "0.1.20190919"

@@ -1,3 +1,3 @@
 
-(defpackage #:hello.GET
+(defpackage #:hello
   (:use #:cl))

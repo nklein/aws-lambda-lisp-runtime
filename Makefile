@@ -8,7 +8,7 @@ BOOTSTRAP_SOURCES := \
 	cl-bootstrap/src/main.lisp
 
 HELLO_FILES := \
-	hello.GET.asd \
+	hello.asd \
 	hello/package.lisp \
 	hello/handler.lisp
 
