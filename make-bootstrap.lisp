@@ -1,7 +1,7 @@
 
 (defun make-bootstrap (filename)
   (load "cl-bootstrap/cl-bootstrap.asd")
-  (asdf:load-system :cl-bootstrap)
+  (ql:quickload :cl-bootstrap)
   (asdf:clear-configuration)
   (asdf:clear-source-registry)
   (let ((main (find-symbol "MAIN" "CL-BOOTSTRAP")))
