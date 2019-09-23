@@ -1,6 +1,14 @@
 
 (in-package #:cl-bootstrap)
 
+(defun get-aws-credentials ()
+  (let ((access-key-id (getenv "AWS_ACCESS_KEY_ID"))
+	(secret-access-key (getenv "AWS_SECRET_ACCESS_KEY"))
+	(session-token (getenv "AWS_SESSION_TOKEN")))
+    (list access-key-id
+	  secret-access-key
+	  session-token)))
+
 (defun parse-handler-name (handler-name)
   (let ((pos (position #\: handler-name)))
     (values (subseq handler-name 0 pos)
@@ -62,7 +70,8 @@
 		(handle-one-request handler runtime request-url)))))
 
 (defun main ()
-  (let ((runtime (getenv "AWS_LAMBDA_RUNTIME_API")))
+  (let ((runtime (getenv "AWS_LAMBDA_RUNTIME_API"))
+	(zaws:*credentials* (get-aws-credentials)))
     (handler-case
         (main-unchecked runtime)
       (t (e)

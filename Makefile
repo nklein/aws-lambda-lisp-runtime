@@ -7,46 +7,57 @@ BOOTSTRAP_SOURCES := \
 	cl-bootstrap/src/compat-ccl.lisp \
 	cl-bootstrap/src/main.lisp
 
-HELLO_FILES := \
+hello_FILES := \
 	hello.asd \
 	hello/package.lisp \
 	hello/handler.lisp
 
-ERROR_FILES := \
+error_FILES := \
 	error.asd \
 	error/package.lisp \
 	error/handler.lisp
 
+dynamodb_FILES := \
+	dynamodb.asd \
+	dynamodb/package.lisp \
+	dynamodb/handler.lisp
+
 LAYER_FILES := \
 	bootstrap
 
-all:	layer.zip hello.zip error.zip
+SAMPLE_FUNCTIONS := \
+	hello \
+	error \
+	dynamodb
+
+all:	layer.zip $(patsubst %,%.zip,$(SAMPLE_FUNCTIONS))
 .PHONY: all
 
 clean:
 	rm -f bootstrap
 	rm -f layer.zip
-	rm -f hello.zip
-	rm -f hello-bootstrap.zip
-	rm -f error.zip
-	rm -f error-bootstrap.zip
 .PHONY: clean
-
-layer.zip: bootstrap
-	zip $@ $^
-
-hello.zip: $(HELLO_FILES)
-	zip $@ $^
-
-hello-bootstrap.zip: bootstrap $(HELLO_FILES)
-	zip $@ $^
-
-error.zip: $(ERROR_FILES)
-	zip $@ $^
-
-error-bootstrap.zip: bootstrap $(ERROR_FILES)
-	zip $@ $^
 
 bootstrap: $(BOOTSTRAP_SOURCES) make-bootstrap.lisp
 	$(CCL) --load make-bootstrap.lisp \
 		--eval "(make-bootstrap \"$@\")"
+
+layer.zip: $(LAYER_FILES)
+	zip $@ $^
+
+define ZIP_template =
+$(1).zip: $$($(1)_FILES)
+	zip $$@ $$^
+
+$(1)-bootstrap.zip: bootstrap $$($(1)_FILES)
+	zip $$@ $$^
+
+clean-$(1):
+	rm -f $(1).zip
+	rm -f $(1)-bootstrap.zip
+.PHONY: clean-$(1)
+
+clean: clean-$(1)
+endef
+
+$(foreach func,$(SAMPLE_FUNCTIONS),$(eval $(call ZIP_template,$(func))))
