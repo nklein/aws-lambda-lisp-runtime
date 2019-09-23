@@ -15,7 +15,6 @@
             (subseq handler-name (1+ pos)))))
 
 (defun load-handler (handler-name)
-  (trace parse-handler-name)
   (multiple-value-bind (package symbol)
       (parse-handler-name handler-name)
     (let ((asd (make-pathname :directory (getenv "LAMBDA_TASK_ROOT")
