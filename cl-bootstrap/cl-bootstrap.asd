@@ -7,6 +7,6 @@
   :components
    ((:module "src"
      :components ((:file "package")
-		  #+ccl (:file "compat-ccl" :depends-on ("package"))
-		  (:file "main" :depends-on ("package"
-					     #+ccl "compat-ccl"))))))
+                  #+ccl (:file "compat-ccl" :depends-on ("package"))
+                  (:file "main" :depends-on ("package"
+                                             #+ccl "compat-ccl"))))))

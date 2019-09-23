@@ -7,4 +7,4 @@
   :components
    ((:module "hello"
      :components ((:file "package")
-		  (:file "handler" :depends-on ("package"))))))
+                  (:file "handler" :depends-on ("package"))))))
