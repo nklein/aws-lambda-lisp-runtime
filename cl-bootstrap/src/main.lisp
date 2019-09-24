@@ -70,7 +70,9 @@
 
 (defun main ()
   (let ((runtime (getenv "AWS_LAMBDA_RUNTIME_API"))
-        (zaws:*credentials* (get-aws-credentials)))
+        (zaws:*credentials* (get-aws-credentials))
+        (json:*json-identifier-name-to-lisp* #'identity)
+        (json:*lisp-identifier-name-to-json* #'identity))
     (handler-case
         (main-unchecked runtime)
       (t (e)
