@@ -11,7 +11,7 @@
 
 (defmethod zaws:prepare-for-signing :after ((request ddb-query))
   (zaws:ensure-header "x-amz-target"
-                      (format nil "DynamoDB_20111205.~A"
+                      (format nil "DynamoDB_20120810.~A"
                               (action request))
                       request))
 
@@ -20,8 +20,9 @@
   (let ((req (make-instance 'ddb-query
                             :action "ListTables"
                             :content "{}")))
-    (let ((rsp (zaws:submit req)))
-      (values (format nil "~S~%~A" rsp (map 'string
-                                            #'code-char
-                                            (zaws:content rsp)))
+    (let* ((rsp (zaws:submit req))
+           (rsp-string (map 'string #'code-char (zaws:content rsp)))
+           (rsp-obj (json:decode-json-from-string rsp-string))
+           (tables (cdr (assoc :|TableNames| rsp-obj))))
+      (values (format nil "~{~A~^, ~}" tables)
               "text/plain"))))
