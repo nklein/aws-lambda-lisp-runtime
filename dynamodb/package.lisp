@@ -1,0 +1,3 @@
+
+(defpackage #:dynamodb
+  (:use #:cl))
